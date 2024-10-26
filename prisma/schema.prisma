@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Book {
+  id                 Int           @id @default(autoincrement())
+  title              String
+  author             String
+  average_rating     Float?
+  isbn               String        @unique
+  isbn13             String        @unique
+  language_code      String
+  num_pages          Int
+  ratings_count      Int
+  text_reviews_count Int
+  publication_date   DateTime
+  publisher          String
+  total_quantity     Int
+  available_quantity Int
+  rented_count       Int
+  transactions       Transaction[]
+}
+
+model Member {
+  id               Int           @id @default(autoincrement())
+  name             String
+  email            String        @unique
+  registered_on    DateTime      @default(now())
+  outstanding_debt Float
+  amount_spent     Float
+  transactions     Transaction[]
+}
+
+model Transaction {
+  id           Int       @id @default(autoincrement())
+  book_id      Int
+  member_id    Int
+  per_day_fee  Float
+  borrowed_on  DateTime  @default(now())
+  returned_on  DateTime?
+  total_charge Float?
+  amount_paid  Float?
+
+  book   Book   @relation(fields: [book_id], references: [id])
+  member Member @relation(fields: [member_id], references: [id])
+}
